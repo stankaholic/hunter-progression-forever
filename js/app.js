@@ -84,15 +84,21 @@
   if (input) {
     if (stored) input.value = stored;
     input.addEventListener("input", function () {
-      var v = parseInt(input.value, 10);
-      if (isNaN(v) || v < 1 || v > 60) {
-        save(LEVEL_KEY, "");
-        applyLevel(0);
-        return;
-      }
-      save(LEVEL_KEY, v);
-      applyLevel(v);
+      setLevel(input.value);
     });
+  }
+
+  // Validate, store and apply a level. Returns the level, or 0 if invalid.
+  function setLevel(raw) {
+    var v = parseInt(raw, 10);
+    if (isNaN(v) || v < 1 || v > 60) {
+      save(LEVEL_KEY, "");
+      applyLevel(0);
+      return 0;
+    }
+    save(LEVEL_KEY, v);
+    applyLevel(v);
+    return v;
   }
   applyLevel(parseInt(stored, 10) || 0);
 
@@ -123,8 +129,24 @@
   if (jumpBtn) {
     jumpBtn.addEventListener("click", function () {
       var cur = document.querySelector(".checklist .is-current");
-      if (cur) cur.scrollIntoView({ behavior: "smooth", block: "center" });
-      else if (input) input.focus();
+      if (!cur) {
+        // No level set yet: ask for it instead of silently doing nothing.
+        var answer = window.prompt("What level is your hunter? (1–60)", input ? input.value : "");
+        if (answer === null) return;
+        var lvl = setLevel(answer);
+        if (!lvl) {
+          window.alert("Please enter a level from 1 to 60.");
+          return;
+        }
+        if (input) input.value = lvl;
+        cur = document.querySelector(".checklist .is-current");
+        if (!cur) return;
+      }
+      cur.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Flash the row so it's obvious where we landed.
+      cur.classList.remove("flash");
+      void cur.offsetWidth; // restart the animation
+      cur.classList.add("flash");
     });
   }
 })();

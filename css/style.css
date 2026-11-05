@@ -156,6 +156,11 @@ td.lvl, th.lvl { width: 4.5rem; text-align: center; font-variant-numeric: tabula
 /* level highlighting (set by js/app.js) */
 tr.is-current, li.is-current { background: var(--current) !important; box-shadow: inset 4px 0 0 var(--accent); }
 tr.is-past td { opacity: .55; }
+@keyframes flash-row {
+  0%, 40% { background: rgba(232, 196, 90, .45); }
+  100% { background: var(--current); }
+}
+li.flash { animation: flash-row 1.6s ease-out; }
 
 /* ---------- badges ---------- */
 .must { color: var(--accent); font-weight: 700; }
